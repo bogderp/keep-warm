@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.2)
+    clipboard (2.0.0)
     diff-lcs (1.5.1)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
@@ -63,6 +64,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  clipboard
+  ffi
   rspec
   rubocop
   rubocop-performance
