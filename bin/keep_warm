@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/keep_warm'
+
+if ARGV.length != 1
+  puts "Usage: #{$PROGRAM_NAME} file_name.txt"
+  exit 1
+end
+
+filename = ARGV[0]
+keep_warm = KeepWarm.new(filename)
+markdown_output = keep_warm.generate_markdown
+
+puts markdown_output
