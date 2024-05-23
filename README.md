@@ -24,7 +24,14 @@ Afterwards, you can run the script using the output file as an argument:
 
 Please ensure that you are in the correct directory where the `keep_warm.rb` file is located before running the commands.
 
-You should get some output that looks like this when added to a markdown file:  
+You should get some output that looks like this when added to a markdown file:
 
 <img width="300" alt="image" src="https://github.com/bogderp/keep-warm/assets/9342394/6b9cfe9e-cd61-4697-9fb9-53c17dc3754d">
 
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/keep_warm.
+
+## License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'rspec'
-require_relative '../lib/keep_warm'
-require 'fileutils'
+require 'spec_helper'
+require 'keep_warm'
 
-RSpec.describe KeepWarm do
+RSpec.describe KeepWarm::Processor do
   let(:filename) { 'spec/fixtures/example_file.txt' }
   let(:keep_warm) { described_class.new(filename) }
   let(:file_content) do

@@ -10,7 +10,7 @@ if ARGV.length != 1
 end
 
 filename = ARGV[0]
-keep_warm = KeepWarm.new(filename)
+keep_warm = KeepWarm::Processor.new(filename)
 markdown_output = keep_warm.generate_markdown
 
 Clipboard.copy(markdown_output)
