@@ -7,142 +7,112 @@ require 'fileutils'
 RSpec.describe KeepWarm do
   let(:filename) { 'spec/fixtures/example_file.txt' }
   let(:keep_warm) { described_class.new(filename) }
-  let(:expected_parsed_results) do
-    [
-      { gem_name: 'minitest', new_version: '5.23.1', previous_version: '5.23.0' },
-      { gem_name: 'ast', new_version: '2.4.2', previous_version: '2.4.0' },
-      { gem_name: 'execjs', new_version: '2.9.1', previous_version: '2.7.0' },
-      { gem_name: 'bigdecimal', new_version: '3.1.8', previous_version: '3.1.7' },
-      { gem_name: 'uglifier', new_version: '4.2.0', previous_version: '3.0.0' },
-      { gem_name: 'strscan', new_version: '3.1.0', previous_version: nil },
-      { gem_name: 'childprocess', new_version: '5.0.0', previous_version: nil }
-    ]
+  let(:file_content) do
+    <<~DATA
+      Fetching https://github.com/honzasterba/google-drive-ruby.git
+      Fetching https://github.com/98-f355-f1/bootstrap-editable-rails
+      Fetching gem metadata from https://enterprise.contribsys.com/..
+      Fetching gem metadata from https://rubygems.org/.......
+      Resolving dependencies...
+      Using minitest 5.23.1 (was 5.23.0)
+      Using ast 2.4.2 (was 2.4.0)
+      Using execjs 2.9.1 (was 2.7.0)
+      Using bigdecimal 3.1.8 (was 3.1.7)
+      Using grpc 1.64.0 (arm64-darwin) (was 1.62.0)
+      Fetching strscan 3.1.0
+      Fetching highline 2.0.3 (was 1.7.10)
+    DATA
   end
 
   before do
     FileUtils.mkdir_p('spec/fixtures')
-    File.write(filename, <<~DATA)
-      Fetching minitest 5.23.1 (was 5.23.0)
-      Fetching ast 2.4.2 (was 2.4.0)
-      Fetching execjs 2.9.1 (was 2.7.0)
-      Fetching bigdecimal 3.1.8 (was 3.1.7)
-      Fetching uglifier 4.2.0 (was 3.0.0)
-      Fetching strscan 3.1.0
-      Fetching childprocess 5.0.0
-    DATA
+    File.write(filename, file_content)
   end
 
   after do
     FileUtils.rm_f(filename)
   end
 
-  describe '#parse_gem_versions' do
-    it 'parses gem versions correctly' do
-      parsed_results = keep_warm.parse_gem_versions
-      expect(parsed_results).to match_array(expected_parsed_results)
-    end
-  end
+  describe '#generate_markdown' do
+    let(:markdown_output) { keep_warm.generate_markdown }
+    let(:expected_output) do
+      <<~MARKDOWN
+        ### Major Changes
 
-  describe '#version_change_type' do
-    it 'identifies major changes' do
-      expect(keep_warm.version_change_type('1.0.0', '2.0.0')).to eq('Major')
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | highline | 1.7.10 | 2.0.3 |  |
+
+        ### Minor Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | execjs | 2.7.0 | 2.9.1 |  |
+        | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
+
+        ### Patch Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | ast | 2.4.0 | 2.4.2 |  |
+        | bigdecimal | 3.1.7 | 3.1.8 |  |
+        | minitest | 5.23.0 | 5.23.1 |  |
+
+        ### N/A Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | strscan |  | 3.1.0 |  |
+
+      MARKDOWN
     end
 
-    it 'identifies minor changes' do
-      expect(keep_warm.version_change_type('1.0.0', '1.1.0')).to eq('Minor')
+    it 'generates the correct markdown output' do
+      expect(markdown_output).to eq(expected_output)
     end
 
-    it 'identifies patch changes' do
-      expect(keep_warm.version_change_type('1.0.0', '1.0.1')).to eq('Patch')
-    end
-
-    it 'identifies N/A changes' do
-      expect(keep_warm.version_change_type(nil, '1.0.0')).to eq('N/A')
-    end
-
-    it 'identifies unknown changes' do
-      expect(keep_warm.version_change_type('1.0.0', '1.0.0')).to eq('unknown')
-    end
-  end
-
-  describe '#categorize_and_sort_gems' do
     it 'categorizes major changes correctly' do
-      categorized_gems = keep_warm.categorize_and_sort_gems(expected_parsed_results)
-      expect(categorized_gems['Major']).to eq([expected_parsed_results[4]])
+      expect(markdown_output).to include(<<~MARKDOWN)
+        ### Major Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | highline | 1.7.10 | 2.0.3 |  |
+
+      MARKDOWN
     end
 
     it 'categorizes minor changes correctly' do
-      categorized_gems = keep_warm.categorize_and_sort_gems(expected_parsed_results)
-      expect(categorized_gems['Minor']).to contain_exactly(expected_parsed_results[2])
+      expect(markdown_output).to include(<<~MARKDOWN)
+        ### Minor Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |\n| execjs | 2.7.0 | 2.9.1 |  |
+        | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
+
+      MARKDOWN
     end
 
     it 'categorizes patch changes correctly' do
-      categorized_gems = keep_warm.categorize_and_sort_gems(expected_parsed_results)
-      expect(categorized_gems['Patch']).to contain_exactly(expected_parsed_results[0], expected_parsed_results[1],
-                                                           expected_parsed_results[3])
+      expect(markdown_output).to include(<<~MARKDOWN)
+        ### Patch Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |\n| ast | 2.4.0 | 2.4.2 |  |
+        | bigdecimal | 3.1.7 | 3.1.8 |  |\n| minitest | 5.23.0 | 5.23.1 |  |
+
+      MARKDOWN
     end
 
     it 'categorizes N/A changes correctly' do
-      categorized_gems = keep_warm.categorize_and_sort_gems(expected_parsed_results)
-      expect(categorized_gems['N/A']).to contain_exactly(expected_parsed_results[5], expected_parsed_results[6])
-    end
-  end
+      expect(markdown_output).to include(<<~MARKDOWN)
+        ### N/A Changes
 
-  describe '#generate_markdown_output' do
-    let(:categorized_gems) { keep_warm.categorize_and_sort_gems(expected_parsed_results) }
-    let(:markdown_output) { keep_warm.generate_markdown_output(categorized_gems) }
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | strscan |  | 3.1.0 |  |
 
-    context 'when there are major changes' do
-      it 'includes correct markdown' do
-        expected_output = <<~MARKDOWN
-          ### Major Changes
-
-          - uglifier: `3.0.0` to: `4.2.0`
-
-        MARKDOWN
-        expect(markdown_output).to include(expected_output)
-      end
-    end
-
-    context 'when there are minor changes' do
-      it 'includes correct markdown' do
-        expected_output = <<~MARKDOWN
-          ### Minor Changes
-
-          - execjs: `2.7.0` to: `2.9.1`
-
-        MARKDOWN
-        expect(markdown_output).to include(expected_output)
-      end
-    end
-
-    context 'when there are patch changes' do
-      it 'includes correct markdown for ast' do
-        expected_output = "- ast: `2.4.0` to: `2.4.2`\n"
-        expect(markdown_output).to include(expected_output)
-      end
-
-      it 'includes correct markdown for bigdecimal' do
-        expected_output = "- bigdecimal: `3.1.7` to: `3.1.8`\n"
-        expect(markdown_output).to include(expected_output)
-      end
-
-      it 'includes correct markdown for minitest' do
-        expected_output = "- minitest: `5.23.0` to: `5.23.1`\n"
-        expect(markdown_output).to include(expected_output)
-      end
-    end
-
-    context 'when there are new additions' do
-      it 'includes correct markdown for childprocess' do
-        expected_output = "- childprocess: `5.0.0`\n"
-        expect(markdown_output).to include(expected_output)
-      end
-
-      it 'includes correct markdown for strscan' do
-        expected_output = "- strscan: `3.1.0`\n"
-        expect(markdown_output).to include(expected_output)
-      end
+      MARKDOWN
     end
   end
 end
