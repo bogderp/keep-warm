@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 require_relative '../lib/keep_warm'
-require 'clipboard'
 
 if ARGV.length != 1
   puts "Usage: #{$PROGRAM_NAME} file_name.txt"
@@ -11,10 +10,8 @@ end
 
 filename = ARGV[0]
 keep_warm = KeepWarm::Processor.new(filename)
-markdown_output = keep_warm.generate_markdown
 
-Clipboard.copy(markdown_output)
-puts "\e[32mOutput copied to clipboard.\n\n\e[0m"
+keep_warm.copy_markdown_to_clipboard
 sleep 1 # wait for the user to see the message
 
-puts markdown_output
+puts keep_warm.markdown

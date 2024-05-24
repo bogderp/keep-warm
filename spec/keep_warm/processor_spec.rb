@@ -32,8 +32,8 @@ RSpec.describe KeepWarm::Processor do
     FileUtils.rm_f(filename)
   end
 
-  describe '#generate_markdown' do
-    let(:markdown_output) { keep_warm.generate_markdown }
+  describe '#markdown' do
+    let(:markdown_output) { keep_warm.markdown }
     let(:expected_output) do
       <<~MARKDOWN
         ### Major Changes

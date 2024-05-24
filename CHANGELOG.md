@@ -9,8 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Initial project setup
+- Standalone Script
 - Generate markdown categories with a table view
-- Copy markdown to clipboard
+- Copy markdown to clipboard method
 
 ### Changed
 
