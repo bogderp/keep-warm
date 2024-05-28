@@ -4,6 +4,15 @@ require 'keep_warm'
 require 'fileutils'
 
 RSpec.configure do |config|
+  original_stdout = $stdout
+  config.before(:suite) do
+    $stdout = File.open(File::NULL, 'w')
+  end
+
+  config.after(:suite) do
+    $stdout = original_stdout
+  end
+
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
     expectations.syntax = :expect

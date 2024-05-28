@@ -11,7 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial project setup
 - Standalone Script
 - Generate markdown categories with a table view
+- Write to file
 - Copy markdown to clipboard method
+- Add Configuration for format and output
 
 ### Changed
 

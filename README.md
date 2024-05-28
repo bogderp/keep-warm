@@ -10,23 +10,23 @@ bundle install
 
 ## Running the script
 
-Before running the script, you need to update your bundle and save the output to a file. You can do this using the following command:
+Before running the script, update your bundle and save the output to a file using the following command:
 
 ```sh
 bundle update > output.txt
 ```
 
-Afterwards, you can run the script using the output file as an argument:
+Afterwards, run the script using the output file as an argument:
 
 ```sh
 ./bin/keep_warm output.txt
 ```
 
-Please ensure that you are in the correct directory where the `keep_warm.rb` file is located before running the commands.
+Ensure that you are in the correct directory where the keep_warm.rb file is located before running the commands.
 
 ## IRB Console
 
-You can also run the script in an IRB console after installing the gem. You can do this by initializing the class and passing the output file as an argument:
+You can also run the script in an IRB console after installing the gem by initializing the class and passing the output file as an argument:
 
 ```ruby
   require 'keep_warm'
@@ -34,29 +34,72 @@ You can also run the script in an IRB console after installing the gem. You can 
   keep_warm = KeepWarm::Processor.new('output.txt')
 ```
 
-### Generating Markdown
+## Configuration
+KeepWarm can be configured using a block. Currently, only the markdown format is supported. The default output is both clipboard and standard output (:standard_output_clipboard), but it can also be set to file (:file) or clipboard (:clipboard). By default, output_dir is ./.
 
-You can generate markdown by calling `markdown` on the `KeepWarm` object:
+### Configuration Options
+| Option | Description | Default | Possible Values |
+| -------- | ---------------- | ----------- | -------- |
+| format | Output format of the report. | :markdown | :markdown |
+| output | Output destination for the report. | :standard_output_clipboard | :file, :clipboard, :standard_output_clipboard |
+| output_dir | Directory where the report file will be saved (if output is set to :file). | './' | Any valid directory path |
+
+
+### Example Configuration
+
+#### Setting Format and Output to File
 
 ```ruby
-  keep_warm.markdown
+KeepWarm.configure do |config|
+  config.format = :markdown
+  config.output = :file
+  config.output_dir = 'bin/'
+end
+```
+
+#### Default Configuration
+```ruby
+KeepWarm.configure do |config|
+  config.format = :markdown
+  config.output = :standard_output_clipboard
+end
+
+KeepWarm::Processor.new('output.txt').run
+```
+
+### Generating Markdown
+
+To generate markdown, configure the format and run the processor:
+
+```ruby
+KeepWarm.configure do |config|
+  config.format = :markdown
+end
+
+keep_warm = KeepWarm::Processor.new('output.txt')
+keep_warm.run
 ```
 
 ### Copying to Clipboard
 
-You can copy the markdown to your clipboard by calling `copy_markdown_to_clipboard` on the `KeepWarm` object:
+To copy the markdown to your clipboard:
 
 ```ruby
-  keep_warm.copy_markdown_to_clipboard
+  KeepWarm.configure do |config|
+    config.output = :clipboard
+  end
+
+  keep_warm = KeepWarm::Processor.new('output.txt')
+  keep_warm.run
 ```
 
-You should get some output that looks like this when previewing the output in a markdown file:
+You should get output that looks like this when previewing the output in a markdown file:
 
 <img width="300" alt="image" src="https://github.com/bogderp/keep-warm/assets/9342394/6b9cfe9e-cd61-4697-9fb9-53c17dc3754d">
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/keep_warm.
+Bug reports and pull requests are welcome on GitHub at https://github.com/bogderp/keep_warm.
 
 ## License
 

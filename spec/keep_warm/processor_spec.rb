@@ -2,10 +2,12 @@
 
 require 'spec_helper'
 require 'keep_warm'
+require 'fileutils'
+require 'clipboard'
 
 RSpec.describe KeepWarm::Processor do
   let(:filename) { 'spec/fixtures/example_file.txt' }
-  let(:keep_warm) { described_class.new(filename) }
+  let(:processor) { described_class.new(filename) }
   let(:file_content) do
     <<~DATA
       Fetching https://github.com/honzasterba/google-drive-ruby.git
@@ -33,7 +35,7 @@ RSpec.describe KeepWarm::Processor do
   end
 
   describe '#markdown' do
-    let(:markdown_output) { keep_warm.markdown }
+    let(:markdown_output) { processor.markdown }
     let(:expected_output) do
       <<~MARKDOWN
         ### Major Changes
@@ -69,49 +71,82 @@ RSpec.describe KeepWarm::Processor do
     it 'generates the correct markdown output' do
       expect(markdown_output).to eq(expected_output)
     end
+  end
 
-    it 'categorizes major changes correctly' do
-      expect(markdown_output).to include(<<~MARKDOWN)
-        ### Major Changes
+  describe '#run' do
+    context 'when output is set to :standard_output' do
+      before do
+        KeepWarm.configure do |config|
+          config.output = :standard_output
+        end
+      end
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | highline | 1.7.10 | 2.0.3 |  |
-
-      MARKDOWN
+      it 'outputs to standard output' do
+        expect { processor.run }.to output(processor.markdown).to_stdout
+      end
     end
 
-    it 'categorizes minor changes correctly' do
-      expect(markdown_output).to include(<<~MARKDOWN)
-        ### Minor Changes
+    context 'when output is set to :clipboard' do
+      before do
+        KeepWarm.configure do |config|
+          config.output = :clipboard
+        end
+        allow(Clipboard).to receive(:copy)
+      end
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |\n| execjs | 2.7.0 | 2.9.1 |  |
-        | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
+      it 'copies the markdown to the clipboard' do
+        processor.run
+        expect(Clipboard).to have_received(:copy).with(processor.markdown)
+      end
 
-      MARKDOWN
+      it 'outputs a confirmation message to standard output' do
+        expect { processor.run }.to output("\e[32mMarkdown copied to clipboard.\e[0m\n").to_stdout
+      end
     end
 
-    it 'categorizes patch changes correctly' do
-      expect(markdown_output).to include(<<~MARKDOWN)
-        ### Patch Changes
+    context 'when output is set to :standard_output_clipboard' do
+      before do
+        KeepWarm.configure do |config|
+          config.output = :standard_output_clipboard
+        end
+        allow(Clipboard).to receive(:copy)
+      end
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |\n| ast | 2.4.0 | 2.4.2 |  |
-        | bigdecimal | 3.1.7 | 3.1.8 |  |\n| minitest | 5.23.0 | 5.23.1 |  |
+      it 'copies the markdown to the clipboard' do
+        processor.run
+        expect(Clipboard).to have_received(:copy).with(processor.markdown)
+      end
 
-      MARKDOWN
+      it 'outputs to standard output and clipboard' do
+        expect do
+          processor.run
+        end.to output("\e[32mMarkdown copied to clipboard.\e[0m\n\n#{processor.markdown}").to_stdout
+      end
     end
 
-    it 'categorizes N/A changes correctly' do
-      expect(markdown_output).to include(<<~MARKDOWN)
-        ### N/A Changes
+    context 'when output is set to :file' do
+      let(:output_dir) { 'spec/fixtures' }
+      let(:output_file) { "#{output_dir}/keep-warm-output.md" }
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | strscan |  | 3.1.0 |  |
+      before do
+        KeepWarm.configure do |config|
+          config.output = :file
+          config.output_dir = output_dir
+        end
+      end
 
-      MARKDOWN
+      after do
+        FileUtils.rm_f(output_file)
+      end
+
+      it 'writes the markdown to a file' do
+        processor.run
+        expect(File.read(output_file)).to eq(processor.markdown)
+      end
+
+      it 'outputs a confirmation message to standard output' do
+        expect { processor.run }.to output("Writing to #{output_file}\nDone\n").to_stdout
+      end
     end
   end
 end

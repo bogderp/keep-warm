@@ -8,10 +8,10 @@ if ARGV.length != 1
   exit 1
 end
 
+KeepWarm.configure do |config|
+  config.format = :markdown
+  config.output = :standard_output_clipboard
+end
+
 filename = ARGV[0]
-keep_warm = KeepWarm::Processor.new(filename)
-
-keep_warm.copy_markdown_to_clipboard
-sleep 1 # wait for the user to see the message
-
-puts keep_warm.markdown
+KeepWarm::Processor.new(filename).run
