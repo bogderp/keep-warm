@@ -1,9 +1,7 @@
 ## Future Enhancements
 
 * Accept additional config for format.
-  * JSON Format
   * YAML Format
-  * CSV Format
   * HTML Format
 
 * Use RubyGems API to get gem information.

@@ -105,6 +105,39 @@ RSpec.describe KeepWarm::Processor do
         expect(csv_output).to eq(expected_output)
       end
     end
+
+    context 'when format is set to :json' do
+      before do
+        KeepWarm.configure do |config|
+          config.format = :json
+        end
+      end
+
+      let(:json_output) { processor.output }
+      let(:expected_output) do
+        {
+          'major' => [
+            { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+          ],
+          'minor' => [
+            { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+            { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+          ],
+          'patch' => [
+            { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+            { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+            { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+          ],
+          'new' => [
+            { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+          ]
+        }.to_json
+      end
+
+      it 'generates the correct JSON output' do
+        expect(json_output).to eq(expected_output)
+      end
+    end
   end
 
   describe '#run' do
@@ -162,29 +195,64 @@ RSpec.describe KeepWarm::Processor do
     end
 
     context 'when output is set to :file' do
-      let(:output_dir) { 'spec/fixtures' }
-      let(:output_file) { "#{output_dir}/keep-warm-output.csv" }
+      it_behaves_like 'file output', :markdown, 'md', <<~MARKDOWN
+        ### Major Changes
 
-      before do
-        KeepWarm.configure do |config|
-          config.output = :file
-          config.output_dir = output_dir
-          config.format = :csv
-        end
-      end
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | highline | 1.7.10 | 2.0.3 |  |
 
-      after do
-        FileUtils.rm_f(output_file)
-      end
+        ### Minor Changes
 
-      it 'writes the markdown to a file' do
-        processor.run
-        expect(File.read(output_file)).to eq(processor.output)
-      end
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | execjs | 2.7.0 | 2.9.1 |  |
+        | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
 
-      it 'outputs a confirmation message to standard output' do
-        expect { processor.run }.to output("Writing to #{output_file}\nDone\n").to_stdout
-      end
+        ### Patch Changes
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | ast | 2.4.0 | 2.4.2 |  |
+        | bigdecimal | 3.1.7 | 3.1.8 |  |
+        | minitest | 5.23.0 | 5.23.1 |  |
+
+        ### New Gems
+
+        | Gem Name | Previous Version | New Version | Platform |
+        | --- | --- | --- | --- |
+        | strscan |  | 3.1.0 |  |
+
+      MARKDOWN
+
+      it_behaves_like 'file output', :csv, 'csv', (CSV.generate(headers: true) do |csv|
+        csv << ['Change Type', 'Gem Name', 'Previous Version', 'New Version', 'Platform']
+        csv << ['Major', 'highline', '1.7.10', '2.0.3', nil]
+        csv << ['Minor', 'execjs', '2.7.0', '2.9.1', nil]
+        csv << ['Minor', 'grpc', '1.62.0', '1.64.0', 'arm64-darwin']
+        csv << ['Patch', 'ast', '2.4.0', '2.4.2', nil]
+        csv << ['Patch', 'bigdecimal', '3.1.7', '3.1.8', nil]
+        csv << ['Patch', 'minitest', '5.23.0', '5.23.1', nil]
+        csv << ['New', 'strscan', nil, '3.1.0', nil]
+      end)
+
+      it_behaves_like 'file output', :json, 'json', {
+        'major' => [
+          { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+        ],
+        'minor' => [
+          { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+          { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+        ],
+        'patch' => [
+          { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+          { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+          { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+        ],
+        'new' => [
+          { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+        ]
+      }.to_json
     end
   end
 end

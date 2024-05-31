@@ -7,8 +7,8 @@ module KeepWarm
 
     FORMAT_FILE_EXT_MAPPINGS = {
       markdown: 'md',
-      csv: 'csv'
-      # json: 'json',
+      csv: 'csv',
+      json: 'json'
       # yaml: 'yaml',
       # yml: 'yml',
       # html: 'html'
@@ -16,8 +16,8 @@ module KeepWarm
 
     FORMAT_NAMES = {
       markdown: 'Markdown',
-      csv: 'CSV'
-      # json: 'JSON',
+      csv: 'CSV',
+      json: 'JSON'
       # yaml: 'YAML',
       # yml: 'YAML',
       # html: 'HTML'
@@ -41,6 +41,8 @@ module KeepWarm
       case @format
       when :csv
         Generator::CSV
+      when :json
+        Generator::JSON
       else
         Generator::Markdown
       end

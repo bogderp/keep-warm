@@ -3,6 +3,8 @@
 require 'keep_warm'
 require 'fileutils'
 
+Dir[File.join(__dir__, 'support/**/*.rb')].each { |file| require file }
+
 RSpec.configure do |config|
   original_stdout = $stdout
   config.before(:suite) do

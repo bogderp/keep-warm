@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Standalone Script
 - Generate markdown categories with a table view
 - Generate CSV
+- Generate JSON
 - Write to file
 - Copy markdown to clipboard method
 - Add Configuration for format and output
