@@ -34,42 +34,76 @@ RSpec.describe KeepWarm::Processor do
     FileUtils.rm_f(filename)
   end
 
-  describe '#markdown' do
-    let(:markdown_output) { processor.markdown }
-    let(:expected_output) do
-      <<~MARKDOWN
-        ### Major Changes
+  describe '#output' do
+    context 'when format is set to :markdown' do
+      before do
+        KeepWarm.configure do |config|
+          config.format = :markdown
+        end
+      end
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | highline | 1.7.10 | 2.0.3 |  |
+      let(:markdown_output) { processor.output }
+      let(:expected_output) do
+        <<~MARKDOWN
+          ### Major Changes
 
-        ### Minor Changes
+          | Gem Name | Previous Version | New Version | Platform |
+          | --- | --- | --- | --- |
+          | highline | 1.7.10 | 2.0.3 |  |
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | execjs | 2.7.0 | 2.9.1 |  |
-        | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
+          ### Minor Changes
 
-        ### Patch Changes
+          | Gem Name | Previous Version | New Version | Platform |
+          | --- | --- | --- | --- |
+          | execjs | 2.7.0 | 2.9.1 |  |
+          | grpc | 1.62.0 | 1.64.0 | arm64-darwin |
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | ast | 2.4.0 | 2.4.2 |  |
-        | bigdecimal | 3.1.7 | 3.1.8 |  |
-        | minitest | 5.23.0 | 5.23.1 |  |
+          ### Patch Changes
 
-        ### N/A Changes
+          | Gem Name | Previous Version | New Version | Platform |
+          | --- | --- | --- | --- |
+          | ast | 2.4.0 | 2.4.2 |  |
+          | bigdecimal | 3.1.7 | 3.1.8 |  |
+          | minitest | 5.23.0 | 5.23.1 |  |
 
-        | Gem Name | Previous Version | New Version | Platform |
-        | --- | --- | --- | --- |
-        | strscan |  | 3.1.0 |  |
+          ### N/A Changes
 
-      MARKDOWN
+          | Gem Name | Previous Version | New Version | Platform |
+          | --- | --- | --- | --- |
+          | strscan |  | 3.1.0 |  |
+
+        MARKDOWN
+      end
+
+      it 'generates the correct markdown output' do
+        expect(markdown_output).to eq(expected_output)
+      end
     end
 
-    it 'generates the correct markdown output' do
-      expect(markdown_output).to eq(expected_output)
+    context 'when format is set to :csv' do
+      before do
+        KeepWarm.configure do |config|
+          config.format = :csv
+        end
+      end
+
+      let(:csv_output) { processor.output }
+      let(:expected_output) do
+        CSV.generate(headers: true) do |csv|
+          csv << ['Change Type', 'Gem Name', 'Previous Version', 'New Version', 'Platform']
+          csv << ['Major', 'highline', '1.7.10', '2.0.3', nil]
+          csv << ['Minor', 'execjs', '2.7.0', '2.9.1', nil]
+          csv << ['Minor', 'grpc', '1.62.0', '1.64.0', 'arm64-darwin']
+          csv << ['Patch', 'ast', '2.4.0', '2.4.2', nil]
+          csv << ['Patch', 'bigdecimal', '3.1.7', '3.1.8', nil]
+          csv << ['Patch', 'minitest', '5.23.0', '5.23.1', nil]
+          csv << ['N/A', 'strscan', nil, '3.1.0', nil]
+        end
+      end
+
+      it 'generates the correct CSV output' do
+        expect(csv_output).to eq(expected_output)
+      end
     end
   end
 
@@ -82,7 +116,7 @@ RSpec.describe KeepWarm::Processor do
       end
 
       it 'outputs to standard output' do
-        expect { processor.run }.to output(processor.markdown).to_stdout
+        expect { processor.run }.to output(processor.output).to_stdout
       end
     end
 
@@ -96,11 +130,13 @@ RSpec.describe KeepWarm::Processor do
 
       it 'copies the markdown to the clipboard' do
         processor.run
-        expect(Clipboard).to have_received(:copy).with(processor.markdown)
+        expect(Clipboard).to have_received(:copy).with(processor.output)
       end
 
       it 'outputs a confirmation message to standard output' do
-        expect { processor.run }.to output("\e[32mMarkdown copied to clipboard.\e[0m\n").to_stdout
+        expect do
+          processor.run
+        end.to output("\e[32m#{KeepWarm.configuration.format_name} copied to clipboard.\e[0m\n").to_stdout
       end
     end
 
@@ -114,24 +150,26 @@ RSpec.describe KeepWarm::Processor do
 
       it 'copies the markdown to the clipboard' do
         processor.run
-        expect(Clipboard).to have_received(:copy).with(processor.markdown)
+        expect(Clipboard).to have_received(:copy).with(processor.output)
       end
 
       it 'outputs to standard output and clipboard' do
+        format = KeepWarm.configuration.format_name
         expect do
           processor.run
-        end.to output("\e[32mMarkdown copied to clipboard.\e[0m\n\n#{processor.markdown}").to_stdout
+        end.to output("\e[32m#{format} copied to clipboard.\e[0m\n\n#{processor.output}").to_stdout
       end
     end
 
     context 'when output is set to :file' do
       let(:output_dir) { 'spec/fixtures' }
-      let(:output_file) { "#{output_dir}/keep-warm-output.md" }
+      let(:output_file) { "#{output_dir}/keep-warm-output.csv" }
 
       before do
         KeepWarm.configure do |config|
           config.output = :file
           config.output_dir = output_dir
+          config.format = :csv
         end
       end
 
@@ -141,7 +179,7 @@ RSpec.describe KeepWarm::Processor do
 
       it 'writes the markdown to a file' do
         processor.run
-        expect(File.read(output_file)).to eq(processor.markdown)
+        expect(File.read(output_file)).to eq(processor.output)
       end
 
       it 'outputs a confirmation message to standard output' do

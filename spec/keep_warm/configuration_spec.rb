@@ -26,15 +26,10 @@ RSpec.describe KeepWarm::Configuration do
       expect(config.file_extension).to eq('md')
     end
 
-    it 'returns nil for an unsupported format' do
-      config.format = :unsupported_format
-      expect(config.file_extension).to be_nil
+    it 'returns the correct file extension for :csv' do
+      config.format = :csv
+      expect(config.file_extension).to eq('csv')
     end
-
-    # it 'returns the correct file extension for :csv' do
-    #   config.format = :csv
-    #   expect(config.file_extension).to eq('csv')
-    # end
 
     # it 'returns the correct file extension for :json' do
     #   config.format = :json
@@ -49,6 +44,33 @@ RSpec.describe KeepWarm::Configuration do
     # it 'returns the correct file extension for :html' do
     #   config.format = :html
     #   expect(config.file_extension).to eq('html')
+    # end
+  end
+
+  describe '#format_name' do
+    it 'returns the correct format name for :markdown' do
+      config.format = :markdown
+      expect(config.format_name).to eq('Markdown')
+    end
+
+    it 'returns the correct format name for :csv' do
+      config.format = :csv
+      expect(config.format_name).to eq('CSV')
+    end
+
+    # it 'returns the correct format name for :json' do
+    #   config.format = :json
+    #   expect(config.format_name).to eq('JSON')
+    # end
+
+    # it 'returns the correct format name for :yaml' do
+    #   config.format = :yaml
+    #   expect(config.format_name).to eq('YAML')
+    # end
+
+    # it 'returns the correct format name for :html' do
+    #   config.format = :html
+    #   expect(config.format_name).to eq('HTML')
     # end
   end
 end

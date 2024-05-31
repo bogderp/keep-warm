@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative '../../lib/keep_warm/markdown_generator'
+require_relative '../../../lib/keep_warm/generator/markdown'
 
-RSpec.describe KeepWarm::MarkdownGenerator do
+RSpec.describe KeepWarm::Generator::Markdown do
   let(:categorized_gems) do
     {
       'Major' => [

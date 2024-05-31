@@ -1,28 +1,29 @@
 # frozen_string_literal: false
 
-require_relative 'gem_parser'
-require_relative 'markdown_generator'
 require 'clipboard'
+require_relative 'gem_parser'
+require_relative 'generator/markdown'
+require_relative 'generator/csv'
 
 module KeepWarm
-  # Class responsible for generating markdown output from gem versions.
+  # Class responsible for generating detailed output from gem versions.
   class Processor
-    attr_reader :markdown
+    attr_reader :output
 
     def initialize(filename)
-      KeepWarm.configuration ||= KeepWarm::Configuration.new
+      @configuration = KeepWarm.configuration ||= KeepWarm::Configuration.new
       @filename = filename
       results = GemParser.parse_gem_versions(@filename)
       @categorized_gems = GemParser.categorize_and_sort_gems(results)
-      @markdown = generate_markdown
+      @output = generate_output
     end
 
     def run
-      case KeepWarm.configuration.output
+      case configuration.output
       when :standard_output
-        puts markdown
+        puts output
       when :clipboard
-        copy_markdown_to_clipboard
+        copy_output_to_clipboard
       when :standard_output_clipboard
         output_to_standard_output_and_clipboard
       when :file
@@ -32,31 +33,33 @@ module KeepWarm
 
     private
 
-    def generate_markdown
-      MarkdownGenerator.generate_output(@categorized_gems)
+    attr_reader :configuration
+
+    def generate_output
+      configuration.generator.generate_output(@categorized_gems)
     end
 
-    def copy_markdown_to_clipboard
-      Clipboard.copy(markdown)
-      puts "\e[32mMarkdown copied to clipboard.\e[0m"
+    def copy_output_to_clipboard
+      Clipboard.copy(output)
+      puts "\e[32m#{configuration.format_name} copied to clipboard.\e[0m"
     end
 
     def output_to_standard_output_and_clipboard
-      copy_markdown_to_clipboard
+      copy_output_to_clipboard
       sleep 1
 
       puts
-      puts markdown
+      puts output
     end
 
     def write_to_file
-      file_extension = KeepWarm.configuration.file_extension
-      output_dir = KeepWarm.configuration.output_dir.chomp('/')
+      file_extension = configuration.file_extension
+      output_dir = configuration.output_dir.chomp('/')
       location = "#{output_dir}/keep-warm-output.#{file_extension}"
 
       # TODO: Catch failed write.
       puts "Writing to #{location}"
-      File.write(location, markdown)
+      File.write(location, output)
       puts 'Done'
     end
   end
