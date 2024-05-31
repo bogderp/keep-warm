@@ -66,7 +66,7 @@ RSpec.describe KeepWarm::Processor do
           | bigdecimal | 3.1.7 | 3.1.8 |  |
           | minitest | 5.23.0 | 5.23.1 |  |
 
-          ### N/A Changes
+          ### New Gems
 
           | Gem Name | Previous Version | New Version | Platform |
           | --- | --- | --- | --- |
@@ -97,7 +97,7 @@ RSpec.describe KeepWarm::Processor do
           csv << ['Patch', 'ast', '2.4.0', '2.4.2', nil]
           csv << ['Patch', 'bigdecimal', '3.1.7', '3.1.8', nil]
           csv << ['Patch', 'minitest', '5.23.0', '5.23.1', nil]
-          csv << ['N/A', 'strscan', nil, '3.1.0', nil]
+          csv << ['New', 'strscan', nil, '3.1.0', nil]
         end
       end
 

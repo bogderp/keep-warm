@@ -7,7 +7,8 @@ module KeepWarm
       class << self
         def generate_output(categorized_gems)
           categorized_gems.each_with_object('') do |(change_type, gem_list), markdown_output|
-            markdown_output << "### #{change_type} Changes\n\n"
+            section_title = change_type == 'New' ? 'New Gems' : "#{change_type} Changes"
+            markdown_output << "### #{section_title}\n\n"
             markdown_output << "| Gem Name | Previous Version | New Version | Platform |\n"
             markdown_output << "| --- | --- | --- | --- |\n"
             gem_list.each do |gem|

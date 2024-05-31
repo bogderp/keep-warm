@@ -51,7 +51,7 @@ RSpec.describe KeepWarm::GemParser do
           { gem_name: 'ast', new_version: '2.4.2', previous_version: '2.4.0', platform: nil },
           { gem_name: 'minitest', new_version: '5.23.1', previous_version: '5.23.0', platform: nil }
         ],
-        'N/A' => [
+        'New' => [
           { gem_name: 'strscan', new_version: '3.1.0', previous_version: nil, platform: nil }
         ]
       }
@@ -89,8 +89,8 @@ RSpec.describe KeepWarm::GemParser do
       expect(described_class.send(:version_change_type, '1.0.0', '1.0.1')).to eq('Patch')
     end
 
-    it 'returns N/A for nil previous versions' do
-      expect(described_class.send(:version_change_type, nil, '1.0.0')).to eq('N/A')
+    it 'returns New for nil previous versions' do
+      expect(described_class.send(:version_change_type, nil, '1.0.0')).to eq('New')
     end
 
     it 'returns unknown for non-incremental changes' do

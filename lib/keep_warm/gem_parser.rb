@@ -61,7 +61,7 @@ module KeepWarm
       end
 
       def version_change_type(previous_version, new_version)
-        return 'N/A' if previous_version.nil?
+        return 'New' if previous_version.nil?
 
         prev_parts = version_parts(previous_version)
         new_parts = version_parts(new_version)
@@ -90,7 +90,7 @@ module KeepWarm
           'Major' => [],
           'Minor' => [],
           'Patch' => [],
-          'N/A' => []
+          'New' => []
         }
       end
 

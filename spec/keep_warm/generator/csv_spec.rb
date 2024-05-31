@@ -16,7 +16,7 @@ RSpec.describe KeepWarm::Generator::CSV do
       'Patch' => [
         { gem_name: 'patch_gem', new_version: '1.0.1', previous_version: '1.0.0', platform: nil }
       ],
-      'N/A' => [
+      'New' => [
         { gem_name: 'na_gem', new_version: '1.0.0', previous_version: nil, platform: nil }
       ]
     }
@@ -29,7 +29,7 @@ RSpec.describe KeepWarm::Generator::CSV do
         csv << ['Major', 'major_gem', '1.0.0', '2.0.0', nil]
         csv << ['Minor', 'minor_gem', '1.0.0', '1.1.0', nil]
         csv << ['Patch', 'patch_gem', '1.0.0', '1.0.1', nil]
-        csv << ['N/A', 'na_gem', nil, '1.0.0', nil]
+        csv << ['New', 'na_gem', nil, '1.0.0', nil]
       end
     end
 

@@ -15,7 +15,7 @@ RSpec.describe KeepWarm::Generator::Markdown do
       'Patch' => [
         { gem_name: 'patch_gem', new_version: '1.0.1', previous_version: '1.0.0', platform: nil }
       ],
-      'N/A' => [
+      'New' => [
         { gem_name: 'na_gem', new_version: '1.0.0', previous_version: nil, platform: nil }
       ]
     }
@@ -42,7 +42,7 @@ RSpec.describe KeepWarm::Generator::Markdown do
         | --- | --- | --- | --- |
         | patch_gem | 1.0.0 | 1.0.1 |  |
 
-        ### N/A Changes
+        ### New Gems
 
         | Gem Name | Previous Version | New Version | Platform |
         | --- | --- | --- | --- |
