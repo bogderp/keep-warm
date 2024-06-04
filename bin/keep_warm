@@ -9,7 +9,7 @@ if ARGV.length != 1
 end
 
 KeepWarm.configure do |config|
-  config.format = :json
+  config.format = :yml
   config.output = :file
 end
 

@@ -1,8 +1,6 @@
 ## Future Enhancements
 
-* Accept additional config for format.
-  * YAML Format
-  * HTML Format
+* Accept HTML Format
 
 * Use RubyGems API to get gem information.
   * Should show current version, available version, and latest version.

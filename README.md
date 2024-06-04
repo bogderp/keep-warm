@@ -27,7 +27,7 @@ You can configure KeepWarm in your application initializer or script. Here's an 
 
 ```ruby
 KeepWarm.configure do |config|
-  config.format = :markdown   # Available formats: :markdown, :csv, :json
+  config.format = :markdown   # Available formats: :markdown, :csv, :json, :yaml, :yml
   config.output = :file       # Available outputs: :standard_output, :clipboard, :standard_output_clipboard, :file
   config.output_dir = './tmp' # Directory where the file will be written (if output is :file)
 end
@@ -37,6 +37,8 @@ end
 * `:markdown`: Generates a report in Markdown format.
 * `:csv`: Generates a report in CSV format.
 * `:json`: Generates a report in JSON format.
+* `:yaml`: Generates a report in YAML format.
+* `:yml`: Generates a report in YAML format.
 * Additional formats will added in the future, such as YAML and HTML.
 
 #### Outputs
@@ -51,6 +53,8 @@ The file extension for the output file is determined by the format:
 * `:markdown` -> `.md`
 * `:csv` -> `.csv`
 * `:json` -> `.json`
+* `:yaml` -> `.yaml`
+* `:yml` -> `.yml`
 * Additional formats will have their corresponding extensions.
 
 ### Examples

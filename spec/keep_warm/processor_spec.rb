@@ -138,6 +138,72 @@ RSpec.describe KeepWarm::Processor do
         expect(json_output).to eq(expected_output)
       end
     end
+
+    context 'when format is set to :yaml' do
+      before do
+        KeepWarm.configure do |config|
+          config.format = :yaml
+        end
+      end
+
+      let(:yaml_output) { processor.output }
+      let(:expected_output) do
+        {
+          'major' => [
+            { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+          ],
+          'minor' => [
+            { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+            { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+          ],
+          'patch' => [
+            { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+            { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+            { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+          ],
+          'new' => [
+            { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+          ]
+        }.to_yaml
+      end
+
+      it 'generates the correct YAML output' do
+        expect(yaml_output).to eq(expected_output)
+      end
+    end
+
+    context 'when format is set to :yml' do
+      before do
+        KeepWarm.configure do |config|
+          config.format = :yml
+        end
+      end
+
+      let(:yml_output) { processor.output }
+      let(:expected_output) do
+        {
+          'major' => [
+            { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+          ],
+          'minor' => [
+            { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+            { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+          ],
+          'patch' => [
+            { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+            { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+            { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+          ],
+          'new' => [
+            { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+          ]
+        }.to_yaml
+      end
+
+      it 'generates the correct YAML output' do
+        expect(yml_output).to eq(expected_output)
+      end
+    end
   end
 
   describe '#run' do
@@ -195,6 +261,26 @@ RSpec.describe KeepWarm::Processor do
     end
 
     context 'when output is set to :file' do
+      let(:yaml_output) do
+        {
+          'major' => [
+            { gem_name: 'highline', new_version: '2.0.3', previous_version: '1.7.10', platform: nil }
+          ],
+          'minor' => [
+            { gem_name: 'execjs', new_version: '2.9.1', previous_version: '2.7.0', platform: nil },
+            { gem_name: 'grpc', new_version: '1.64.0', previous_version: '1.62.0', platform: 'arm64-darwin' }
+          ],
+          'patch' => [
+            { gem_name: 'ast', new_version: '2.4.2', previous_version: '2.4.0', platform: nil },
+            { gem_name: 'bigdecimal', new_version: '3.1.8', previous_version: '3.1.7', platform: nil },
+            { gem_name: 'minitest', new_version: '5.23.1', previous_version: '5.23.0', platform: nil }
+          ],
+          'new' => [
+            { gem_name: 'strscan', new_version: '3.1.0', previous_version: nil, platform: nil }
+          ]
+        }.to_yaml
+      end
+
       it_behaves_like 'file output', :markdown, 'md', <<~MARKDOWN
         ### Major Changes
 
@@ -253,6 +339,42 @@ RSpec.describe KeepWarm::Processor do
           { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
         ]
       }.to_json
+
+      it_behaves_like 'file output', :yaml, 'yaml', {
+        'major' => [
+          { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+        ],
+        'minor' => [
+          { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+          { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+        ],
+        'patch' => [
+          { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+          { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+          { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+        ],
+        'new' => [
+          { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+        ]
+      }.to_yaml
+
+      it_behaves_like 'file output', :yml, 'yml', {
+        'major' => [
+          { gem_name: 'highline', new_version: '2.0.3', platform: nil, previous_version: '1.7.10' }
+        ],
+        'minor' => [
+          { gem_name: 'execjs', new_version: '2.9.1', platform: nil, previous_version: '2.7.0' },
+          { gem_name: 'grpc', new_version: '1.64.0', platform: 'arm64-darwin', previous_version: '1.62.0' }
+        ],
+        'patch' => [
+          { gem_name: 'ast', new_version: '2.4.2', platform: nil, previous_version: '2.4.0' },
+          { gem_name: 'bigdecimal', new_version: '3.1.8', platform: nil, previous_version: '3.1.7' },
+          { gem_name: 'minitest', new_version: '5.23.1', platform: nil, previous_version: '5.23.0' }
+        ],
+        'new' => [
+          { gem_name: 'strscan', new_version: '3.1.0', platform: nil, previous_version: nil }
+        ]
+      }.to_yaml
     end
   end
 end

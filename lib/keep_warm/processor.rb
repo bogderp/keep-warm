@@ -2,9 +2,10 @@
 
 require 'clipboard'
 require_relative 'gem_parser'
-require_relative 'generator/markdown'
 require_relative 'generator/csv'
 require_relative 'generator/json'
+require_relative 'generator/markdown'
+require_relative 'generator/yaml'
 
 module KeepWarm
   # Class responsible for generating detailed output from gem versions.

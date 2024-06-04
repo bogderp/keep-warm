@@ -8,14 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Initial project setup
 - Standalone Script
-- Generate markdown categories with a table view
+- Configuration for format, output, and output directory
+- Generate Markdown
 - Generate CSV
 - Generate JSON
+- Generate YAML/YML
 - Write to file
-- Copy markdown to clipboard method
-- Add Configuration for format and output
+- Output to clipboard
 
 ### Changed
 
